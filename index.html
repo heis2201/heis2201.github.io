@@ -1,67 +1,37 @@
-<?php
-session_start();
-
-/**
- * 1. SET YOUR PASSWORD HERE
- */
-$password = "your_secret_password"; 
-
-// Handle Logout
-if (isset($_GET['logout'])) {
-    session_destroy();
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit;
-}
-
-// Handle Login Attempt
-if (isset($_POST['password'])) {
-    if ($_POST['password'] === $password) {
-        $_SESSION['authenticated'] = true;
-    } else {
-        $error = "Access Denied.";
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
     <title>fhlo.de</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-color: #0a0a0a; --text-color: #ffffff; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Inter', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; color: var(--text-color); }
-        .background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a0a 100%); }
-        .card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 3rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        h1 { font-weight: 600; font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(to bottom, #fff 40%, #a1a1a1 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        input[type="password"] { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; color: white; text-align: center; font-family: 'Inter'; outline: none; transition: 0.3s; }
-        input[type="password"]:focus { border-color: rgba(255,255,255,0.5); }
-        button { background: white; color: black; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px; }
-        .error { color: #ff4b2b; font-size: 0.8rem; margin-top: 10px; }
+        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 3rem; text-align: center; }
+        input { background: #1a1a1a; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; text-align: center; }
+        button { background: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: 600; }
     </style>
 </head>
 <body>
-    <div class="background"></div>
+    <div class="card">
+        <h1>Private Access</h1>
+        <input type="password" id="pass" placeholder="Enter Password">
+        <br>
+        <button onclick="unlock()">Unlock</button>
+        <p id="msg" style="color: red; font-size: 0.8rem;"></p>
+    </div>
 
-    <?php if (!isset($_SESSION['authenticated'])): ?>
-        <div class="card">
-            <h1>Welcome.</h1>
-            <form method="POST">
-                <input type="password" name="password" placeholder="Enter Password" autofocus><br>
-                <button type="submit">Unlock</button>
-            </form>
-            <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
-        </div>
-    <?php else: ?>
-        <div class="card">
-            <h1>fhlo.de</h1>
-            <p style="color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.1em;">
-                Private Access Granted.
-            </p>
-            <p><a href="?logout" style="color: rgba(255,255,255,0.3); text-decoration: none; font-size: 0.8rem;">Logout</a></p>
-        </div>
-    <?php endif; ?>
+    <script>
+        async function unlock() {
+            const pass = document.getElementById('pass').value;
+            // This creates a SHA-256 hash of the password
+            const msgBuffer = new TextEncoder().encode(pass);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            // Redirect to a folder named after that hash
+            window.location.href = "./" + hashHex + "/";
+        }
+    </script>
 </body>
 </html>
