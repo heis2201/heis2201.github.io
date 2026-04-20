@@ -1,0 +1,22 @@
+# Block all search engines
+User-agent: *
+Disallow: /
+
+# Specifically block AI Scrapers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
